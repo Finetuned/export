@@ -92,4 +92,14 @@ class ExportVariable
         // Return custom <tr> for template
         return craft()->export->getCustomTableRow($fieldHandle);
     }
+
+    /**
+     * Return the default Matrix Block Delimiters
+     * @return array
+     */
+    public function getMatrixBlockDelimiters()
+    {
+        // todo -> get this from the correct place... ExportService
+        return array('Field'=>'|','Subfield'=>',','Block'=>'\n');
+    }
 }
