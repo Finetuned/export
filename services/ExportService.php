@@ -151,7 +151,7 @@ class ExportService extends BaseApplicationComponent
                     $data = $this->parseElementData($handle, $data);
 
                     // Parse field data
-                    $data = $this->parseFieldData($handle, $data);
+                    $data = $this->parseFieldData($handle, $data, $settings);
 
                     // Encode and add to rows
                     $rows[] = StringHelper::convertToUTF8($data);
@@ -347,7 +347,7 @@ class ExportService extends BaseApplicationComponent
      *
      * @return string
      */
-    protected function parseElementData($handle, $data)
+    protected function parseElementData($handle, $data, array $settings)
     {
         switch ($handle) {
 
