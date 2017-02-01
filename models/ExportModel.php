@@ -58,4 +58,5 @@ class ExportModel extends BaseModel
     const FieldTypeMultiSelect = 'MultiSelect';
     const FieldTypeDate = 'Date';
     const FieldTypeTags = 'Tags';
+    const FieldTypeMatrix = 'Matrix';
 }
