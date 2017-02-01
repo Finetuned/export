@@ -347,7 +347,7 @@ class ExportService extends BaseApplicationComponent
      *
      * @return string
      */
-    protected function parseElementData($handle, $data, array $settings)
+    protected function parseElementData($handle, $data)
     {
         switch ($handle) {
 
@@ -376,7 +376,7 @@ class ExportService extends BaseApplicationComponent
      *
      * @return string
      */
-    public function parseFieldData($handle, $data)
+    public function parseFieldData($handle, $data, array $settings)
     {
 
         // Do we have any data at all
@@ -463,6 +463,77 @@ class ExportService extends BaseApplicationComponent
 
                         // Return parsed data as array
                         $data = $multi;
+                        break;
+                          case ExportModel::FieldTypeMatrix:
+                        $n=0;
+                        $multi = array();
+                        $fieldSeparator = $settings['mbSeparators-Field'];
+                        $subfieldSeparator = $settings['mbSeparators-Subfield'];
+                        $blockSeparator = $settings['mbSeparators-Block'];
+                        $result = '';
+
+                        foreach($data as $matrixBlockModel){
+
+                            $matrixBlockTypeModel = $matrixBlockModel->getType();
+                            $blockFields = $matrixBlockTypeModel->getFields();
+                            foreach ($blockFields as $blockField)
+                            {
+                                $instance = $matrixBlockModel[$blockField->handle];
+
+                                switch ($blockField->type){
+                                    case "Date":
+                                        $parseType = 1;
+                                    break;
+                                    case "Checkboxes":
+                                        $parseType = 2;
+                                        break;
+                                    case "PlainText":
+                                     //"RichText":
+                                     //"Redactor1":
+                                        $parseType = 3;
+                                        break;
+                                    default:
+                                        $parseType = 0;
+                                        break;
+                                }
+
+                                if ($parseType == 1) {
+                                    // specific to the implementation:
+                                    $multi[$n][$blockField->handle] = isset($instance) ? $instance->localeTime() : '';
+                                }
+
+
+                                if ($parseType == 2) {
+                                    $options = $instance->getOptions();
+                                    $selectedOptions = array();
+                                    foreach ( $options as $option ) {
+                                        if ( $option->selected ) {
+                                            $selectedOptions[] = $option->label;
+                                        }
+                                    }
+                                    $multi[$n][$blockField->handle] = implode($subfieldSeparator, $selectedOptions);
+                                }
+
+                                if ($parseType == 3){
+                                    $multi[$n][$blockField->handle] = strip_tags($instance) . '';
+                                }
+                            }
+                            // more than one matrixblock?
+                            $n++;
+                        }
+
+                        if ($n > 0){
+                            $multi = array_map(
+                                function($arr) use ($fieldSeparator){
+                                    return rtrim( implode($fieldSeparator, $arr), $fieldSeparator);
+
+                                },
+                                $multi
+                            );
+
+                        }
+
+                        $data = implode($blockSeparator, $multi);
                         break;
 
                 }
